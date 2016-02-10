@@ -3,8 +3,8 @@ Project of AGB class: Naive Bayes model to classify tumor types gene expression 
 
 INFO AT: http://regulatorygenomics.upf.edu/courses/Master_AGB/Exercise_NaiveBayes/index.html
 
-'''bash
+```bash
 
 wget http://regulatorygenomics.upf.edu/courses/Master_AGB/Exercise_NaiveBayes/brca_gene_zscore_full-filtered.txt -O brca.tbl
 
-'''
+```
