@@ -9,6 +9,7 @@ INFO AT: http://regulatorygenomics.upf.edu/courses/Master_AGB/Exercise_NaiveBaye
 - [ ] Define and create the training sets and the test set (equal n).
 - [ ] Z-scores to descrete values.
 - [ ] Measure Likelyhoods.
+- [ ] Do we need pseudocounts?
 
 ### Get the sets
 ```bash
