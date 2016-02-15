@@ -4,11 +4,11 @@ use warnings;
 
 my $work_file = shift (@ARGV);
 
-my $brca = master_key($work_file);
+my $file = master_key($work_file);
 
-my $first_line = <$brca>;
+my $first_line = <$file>;
 print "$first_line";
-while (<$brca>){
+while (<$file>){
 	chomp;
 	my ($gene, @expr) = split /\t/;
     my @new_expr = map {
