@@ -32,3 +32,13 @@ wget http://regulatorygenomics.upf.edu/courses/Master_AGB/Exercise_NaiveBayes/pr
 wget http://regulatorygenomics.upf.edu/courses/Master_AGB/Exercise_NaiveBayes/thca_gene_zscore_full-filtered.txt -O ./sources/thca.tbl
 
 ```	
+### AWK
+```bash
+gawk '{print $3}' coad.tbl | sort | uniq -c | more
+
+gawk '{print $3}' coad.tbl | sort | uniq -c | tail
+
+etc
+
+
+```
