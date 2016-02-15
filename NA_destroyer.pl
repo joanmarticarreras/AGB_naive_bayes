@@ -23,7 +23,7 @@ foreach my $filename (@files) {
     while (<$fh>) {
         chomp;
         my ($gene, @expr) = split /\t/;
-        foreach my $i (0..$#expr) {
+        for (my $i = 0; $i < $#expr; $i++) {
             if (exists $data{$i}) {
                 if ($expr[$i] eq "NA" or $expr[$i] eq "Inf") {
                     # OJO CON LOS INFINITOS
@@ -32,9 +32,10 @@ foreach my $filename (@files) {
                 } else {
                     $data{$i}->{$gene} = $expr[$i];
                 }
-
             }
+
         }
+
     }
     print Dumper(%data);
 
