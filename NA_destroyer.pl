@@ -23,21 +23,25 @@ foreach my $filename (@files) {
     while (<$fh>) {
         chomp;
         my ($gene, @expr) = split /\t/;
-        for (my $i = 0; $i < $#expr; $i++) {
+        COLUMN:
+        for (my $i = 0; $i <= $#expr; $i++) {
             if (exists $data{$i}) {
                 if ($expr[$i] eq "NA" or $expr[$i] eq "Inf") {
                     # OJO CON LOS INFINITOS
-                    delete $data{$i};
-                    next;
+                    #delete $data{$i};
+                    #print "ADIOS\n";
+                    print "NA found at col: $i ad line $.\n";
+                    next COLUMN;
                 } else {
-                    $data{$i}->{$gene} = $expr[$i];
+                    # $data{$i}->{$gene} = $expr[$i];
+                    #print "$i\n";
                 }
             }
 
         }
 
     }
-    print Dumper(%data);
+    print Dumper(\%data);
 
 }
 
