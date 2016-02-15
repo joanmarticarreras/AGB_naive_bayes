@@ -53,6 +53,8 @@ foreach my $t_file (@train_files) {
     model_charger(\%model, $t_file);
 }
 
+mutual_information(\%model, \@train_files);
+
 print Dumper(\%model);
 
 #===============================================================================
@@ -121,10 +123,34 @@ sub compute_probabilities {
     my $cancer = shift;
     my $gene   = shift;
 
-    $model->{$cancer}->{$gene}->{"up"}       = log($model->{$cancer}->{$gene}->{"up"} / $model->{$cancer}->{$gene}->{"total"});
-    $model->{$cancer}->{$gene}->{"down"}     = log($model->{$cancer}->{$gene}->{"down"} / $model->{$cancer}->{$gene}->{"total"});
-    $model->{$cancer}->{$gene}->{"nochange"} = log($model->{$cancer}->{$gene}->{"nochange"} / $model->{$cancer}->{$gene}->{"total"});
+    $model->{$cancer}->{$gene}->{"up"}       = $model->{$cancer}->{$gene}->{"up"} / $model->{$cancer}->{$gene}->{"total"};
+    $model->{$cancer}->{$gene}->{"down"}     = $model->{$cancer}->{$gene}->{"down"} / $model->{$cancer}->{$gene}->{"total"};
+    $model->{$cancer}->{$gene}->{"nochange"} = $model->{$cancer}->{$gene}->{"nochange"} / $model->{$cancer}->{$gene}->{"total"};
     return;
+}
+
+#--------------------------------------------------------------------------------
+sub mutual_information {
+    my $model       = shift;
+    my $train_files = shift;
+    my $class_entropy = entropy($train_files);
+    my $condi_entropy = conditional_entropy($model);
+
+}
+
+#--------------------------------------------------------------------------------
+sub entropy {
+    my $classes = shift;
+    my $total   = scalar(@{ $classes });
+    my $result  = log2($total);
+
+    return $result;
+}
+
+#--------------------------------------------------------------------------------
+sub log2 {
+    my $n = shift;
+    return log($n) / log(2);
 }
 
 #--------------------------------------------------------------------------------
