@@ -44,3 +44,6 @@ etc
 ```
 
 ### Do parser.pl
+Done
+
+### Do NotSoNaive.pl
