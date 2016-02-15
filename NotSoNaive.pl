@@ -97,7 +97,6 @@ sub model_charger {
             $model->{$t_file}->{$gene}->{'total'}++;
         }
         add_pseudocounts(\%model, $t_file, $gene);
-        compute_probabilities(\%model, $t_file, $gene);
 
     }
     return;
