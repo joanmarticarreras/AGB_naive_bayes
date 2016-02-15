@@ -2,26 +2,33 @@
 use strict;
 use warnings;
 
-my $work_file = shift (@ARGV);
+my @files = @ARGV;
 
-my $file = master_key($work_file);
+foreach my $filename (@files) {
+    my $file = master_key($filename);
+	my $outfilename = $filename;
+	$outfilename    =~ s/\/(.*?)/\/f_$1/g;
+	open my $out_fh, ">", "$outfilename"
+		or die "Can't write to $outfilename : $!\n";
 
-my $first_line = <$file>;
-print "$first_line";
-while (<$file>){
-	chomp;
-	my ($gene, @expr) = split /\t/;
-    my @new_expr = map {
-        if    ($_ > 2)  { "up" }
-		elsif ($_ < -2) { "down" }
-		elsif  ($_ > -2 and $_ < 2) { "nochange" }
-		elsif  ($_ eq "Inf") { $_ }
-		else { "NA" }
-    } @expr;
-
-	print "$gene\t", join("\t", @new_expr), "\n";
+   	my $first_line = <$file>;
+   	print $out_fh "$first_line";
+   	while (<$file>){
+	   chomp;
+	   my ($gene, @expr) = split /\t/;
+	   my @new_expr = map {
+		   if     ($_ eq "NA")  { $_ }
+		   elsif  ($_ eq "Inf") { $_ }
+		   elsif  ($_ > 2)  { "up" }
+		   elsif  ($_ < -2) { "down" }
+		   elsif  ($_ > -2 and $_ < 2) { "nochange" }
+		   else { "ERROR" }
+	   } @expr;
+	   print $out_fh "$gene\t", join("\t", @new_expr), "\n";
+	}
 
 }
+
 
 
 
