@@ -5,7 +5,7 @@ INFO AT: http://regulatorygenomics.upf.edu/courses/Master_AGB/Exercise_NaiveBaye
 
 ## TO DO
 - [ ] Are there prior probabilities to take into account?
-- [X] Get the sets and parse them.
+- [x] Get the sets and parse them.
 - [ ] Define and create the training sets and the test set (equal n).
 - [ ] Z-scores to descrete values.
 - [ ] Measure Likelyhoods.
