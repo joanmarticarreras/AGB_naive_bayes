@@ -43,6 +43,15 @@ cat sources/* | egrep '\bNA\b|\bInf\b' | gawk '{print $1 }' | sort | uniq > not_
 ```
 Load them into a hash, and just check in NoSoNaive.
 
+We need to know the minumum number of samples in each cancer type, because it will be the number of samples used in our study.
+
+```bash
+gawk '{print FILENAME, NF}' f_* | sort | uniq | more
+
+```
+The number is 288.
+
+
 ### Do parser.pl
 Done
 
