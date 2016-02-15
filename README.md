@@ -5,7 +5,7 @@ INFO AT: http://regulatorygenomics.upf.edu/courses/Master_AGB/Exercise_NaiveBaye
 
 ## TO DO
 - [ ] Are there prior probabilities to take into account?
-- [ ] Get the sets and parse them.
+- [X] Get the sets and parse them.
 - [ ] Define and create the training sets and the test set (equal n).
 - [ ] Z-scores to descrete values.
 - [ ] Measure Likelyhoods.
@@ -32,7 +32,7 @@ wget http://regulatorygenomics.upf.edu/courses/Master_AGB/Exercise_NaiveBayes/pr
 wget http://regulatorygenomics.upf.edu/courses/Master_AGB/Exercise_NaiveBayes/thca_gene_zscore_full-filtered.txt -O ./sources/thca.tbl
 
 ```	
-### AWK
+### Look for funy values with AWK
 ```bash
 gawk '{print $3}' coad.tbl | sort | uniq -c | more
 
@@ -42,3 +42,5 @@ etc
 
 
 ```
+
+### Do parser.pl
