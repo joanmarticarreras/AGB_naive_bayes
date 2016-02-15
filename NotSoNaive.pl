@@ -51,7 +51,6 @@ my %model       = ();
 
 foreach my $t_file (@train_files) {
     model_charger(\%model, $t_file);
-    print Dumper(\%model);
 }
 
 
@@ -95,16 +94,13 @@ sub model_charger {
             $model->{$t_file}->{$gene}->{$ex_val}++;
             $model->{$t_file}->{$gene}->{'total'}++;
         }
-        if (keys %{ $model->{$t_file}->{$gene} } != 4) {
-            check_pseudocounts(\%model, $t_file, $gene);
-        }
-
+        add_pseudocounts(\%model, $t_file, $gene);
     }
     return;
 }
 
 #--------------------------------------------------------------------------------
-sub check_pseudocounts {
+sub add_pseudocounts {
     my $model  = shift;
     my $cancer = shift;
     my $gene   = shift;
