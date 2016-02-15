@@ -53,7 +53,7 @@ foreach my $t_file (@train_files) {
     model_charger(\%model, $t_file);
 }
 
-
+print Dumper(\%model);
 
 #===============================================================================
 # FUNCTIONS
@@ -95,6 +95,8 @@ sub model_charger {
             $model->{$t_file}->{$gene}->{'total'}++;
         }
         add_pseudocounts(\%model, $t_file, $gene);
+        compute_probabilities(\%model, $t_file, $gene);
+
     }
     return;
 }
@@ -110,6 +112,18 @@ sub add_pseudocounts {
     $model->{$cancer}->{$gene}->{"nochange"}++;
     $model->{$cancer}->{$gene}->{"total"} += 3;
 
+    return;
+}
+
+#--------------------------------------------------------------------------------
+sub compute_probabilities {
+    my $model  = shift;
+    my $cancer = shift;
+    my $gene   = shift;
+
+    $model->{$cancer}->{$gene}->{"up"}       = log($model->{$cancer}->{$gene}->{"up"} / $model->{$cancer}->{$gene}->{"total"});
+    $model->{$cancer}->{$gene}->{"down"}     = log($model->{$cancer}->{$gene}->{"down"} / $model->{$cancer}->{$gene}->{"total"});
+    $model->{$cancer}->{$gene}->{"nochange"} = log($model->{$cancer}->{$gene}->{"nochange"} / $model->{$cancer}->{$gene}->{"total"});
     return;
 }
 
