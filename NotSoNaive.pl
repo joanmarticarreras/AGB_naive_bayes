@@ -35,3 +35,40 @@ if ($options{"help"}) {
 }
 
 my @train_files = split /,/, $options{"train"};
+my %model = ();
+
+foreach my $t_file (@train_files) {
+    model_charger(\%model, $t_file);
+    print Dumper(\%model);
+}
+
+sub model_charger {
+    my $model  = shift;
+    my $t_file = shift;
+
+    my $fh = master_key($t_file);
+
+    my $first_line = <$fh>;
+    while (<$fh>) {
+        chomp;
+        my ($gene, @expr) = split /\t/;
+
+        $model->{$t_file} = ()
+            unless exists $model->{$t_file};
+        $model->{$t_file}->{$gene} = ()
+            unless exists $model->{$t_file}->{$gene};
+        foreach my $ex_val (@expr) {
+            $model->{$t_file}->{$gene}->{$ex_val}++;
+            $model->{$t_file}->{$gene}->{'total'}++;
+        }
+
+    }
+
+
+}
+
+sub master_key {
+    my $file = shift or die "Usage: $0 FILE\n";
+    open my $file_fh, '<', $file or die "Could not open '$file' $!";
+    return $file_fh;
+}
