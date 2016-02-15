@@ -24,11 +24,11 @@ use Data::Dumper;
 
 my %options;
 GetOptions (
-    \%options   ,
-    "help|?"    ,
-    "train=s"   ,
-    "test=s"    ,
-    "notvalid"  ,
+    \%options    ,
+    "help|?"     ,
+    "train=s"    ,
+    "test=s"     ,
+    "notvalid=s" ,
 );
 
 if ($options{"help"}) {
@@ -86,23 +86,34 @@ sub model_charger {
         chomp;
         my ($gene, @expr) = split /\t/;
         next if exists $not_valid->{$gene};
-        
-        my %check_pseudo  = ("up"      => 0, "down"  => 0,
-                            "nochange" => 0, "total" => 0);
+
         $model->{$t_file} = ()
             unless exists $model->{$t_file};
         $model->{$t_file}->{$gene} = ()
             unless exists $model->{$t_file}->{$gene};
         foreach my $ex_val (@expr) {
             $model->{$t_file}->{$gene}->{$ex_val}++;
-            $check_pseudo{$ex_val} = 1;
             $model->{$t_file}->{$gene}->{'total'}++;
         }
-        if (keys  %check_pseudo != 4) {
-            check_pseudocounts(\%model);
+        if (keys %{ $model->{$t_file}->{$gene} } != 4) {
+            check_pseudocounts(\%model, $t_file, $gene);
         }
 
     }
+    return;
+}
+
+#--------------------------------------------------------------------------------
+sub check_pseudocounts {
+    my $model  = shift;
+    my $cancer = shift;
+    my $gene   = shift;
+
+    $model->{$cancer}->{$gene}->{"up"}++;
+    $model->{$cancer}->{$gene}->{"down"}++;
+    $model->{$cancer}->{$gene}->{"nochange"}++;
+    $model->{$cancer}->{$gene}->{"total"} += 3;
+
     return;
 }
 
