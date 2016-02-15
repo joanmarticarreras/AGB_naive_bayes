@@ -7,9 +7,10 @@ INFO AT: http://regulatorygenomics.upf.edu/courses/Master_AGB/Exercise_NaiveBaye
 - [x] Are there prior probabilities to take into account? No, all 1/8.
 - [x] Get the sets and parse them.
 - [ ] Define and create the training sets and the test set (equal n).
-- [ ] Z-scores to descrete values.
+- [x] Z-scores to descrete values.
 - [ ] Measure Likelyhoods.
-- [ ] Do we need pseudocounts?
+- [ ] Measure Mutual information.
+- [x] Do we need pseudocounts? YES
 
 ### Get the sets
 ```bash
