@@ -49,6 +49,7 @@ We need to know the minumum number of samples in each cancer type, because it wi
 gawk '{print FILENAME, NF}' f_* | sort | uniq | more
 
 ```
+The number is 288.
 
 
 ### Do parser.pl
