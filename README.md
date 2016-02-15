@@ -42,6 +42,12 @@ etc
 
 
 ```
+### Filter genes with NA or Inf in at least 1 samples
+```bash
+cat sources/* | egrep '\bNA\b|\bInf\b' | gawk '{print $1 }' | sort | uniq > not_valid_genes.txt
+
+```
+Load them into a hash, and just check in NoSoNaive.
 
 ### Do parser.pl
 Done
