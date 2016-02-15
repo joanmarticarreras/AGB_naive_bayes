@@ -22,7 +22,7 @@ foreach my $filename (@files) {
 		   elsif  ($_ > 2)  { "up" }
 		   elsif  ($_ < -2) { "down" }
 		   elsif  ($_ > -2 and $_ < 2) { "nochange" }
-		   else { "ERROR" }
+		   else { print STDERR "Error...\n"; "ERROR" }
 	   } @expr;
 	   print $out_fh "$gene\t", join("\t", @new_expr), "\n";
 	}
