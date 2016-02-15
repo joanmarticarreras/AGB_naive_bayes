@@ -12,6 +12,11 @@ v.0.1.0
 
 =cut
 
+
+#===============================================================================
+# VARIABLES AND OPTIONS
+#===============================================================================
+
 use warnings;
 use strict;
 use Getopt::Long qw(:config no_ignore_case);
@@ -19,10 +24,11 @@ use Data::Dumper;
 
 my %options;
 GetOptions (
-    \%options   ,
-    "help|?"    ,
-    "train=s"   ,
-    "test=s"    ,
+    \%options    ,
+    "help|?"     ,
+    "train=s"    ,
+    "test=s"     ,
+    "notvalid=s" ,
 );
 
 if ($options{"help"}) {
@@ -34,17 +40,44 @@ if ($options{"help"}) {
     die "You have to introduce one test file to make the predictions\n";
 }
 
+
+#===============================================================================
+# MAIN
+#===============================================================================
+
 my @train_files = split /,/, $options{"train"};
-my %model = ();
+my $not_valid   = read_not_valid($options{"notvalid"});
+my %model       = ();
 
 foreach my $t_file (@train_files) {
     model_charger(\%model, $t_file);
     print Dumper(\%model);
 }
 
+
+
+#===============================================================================
+# FUNCTIONS
+#===============================================================================
+#--------------------------------------------------------------------------------
+sub read_not_valid {
+    my $file = shift;
+    my $fh   = master_key($file);
+    my %not_valid = ();
+
+    while (<$fh>) {
+        chomp;
+        $not_valid{$_} = 1;
+    }
+
+    return \%not_valid;
+}
+
+#--------------------------------------------------------------------------------
 sub model_charger {
-    my $model  = shift;
-    my $t_file = shift;
+    my $model     = shift;
+    my $t_file    = shift;
+    my $not_valid = shift;
 
     my $fh = master_key($t_file);
 
@@ -52,6 +85,7 @@ sub model_charger {
     while (<$fh>) {
         chomp;
         my ($gene, @expr) = split /\t/;
+        next if exists $not_valid->{$gene};
 
         $model->{$t_file} = ()
             unless exists $model->{$t_file};
@@ -61,12 +95,29 @@ sub model_charger {
             $model->{$t_file}->{$gene}->{$ex_val}++;
             $model->{$t_file}->{$gene}->{'total'}++;
         }
+        if (keys %{ $model->{$t_file}->{$gene} } != 4) {
+            check_pseudocounts(\%model, $t_file, $gene);
+        }
 
     }
-
-
+    return;
 }
 
+#--------------------------------------------------------------------------------
+sub check_pseudocounts {
+    my $model  = shift;
+    my $cancer = shift;
+    my $gene   = shift;
+
+    $model->{$cancer}->{$gene}->{"up"}++;
+    $model->{$cancer}->{$gene}->{"down"}++;
+    $model->{$cancer}->{$gene}->{"nochange"}++;
+    $model->{$cancer}->{$gene}->{"total"} += 3;
+
+    return;
+}
+
+#--------------------------------------------------------------------------------
 sub master_key {
     my $file = shift or die "Usage: $0 FILE\n";
     open my $file_fh, '<', $file or die "Could not open '$file' $!";
