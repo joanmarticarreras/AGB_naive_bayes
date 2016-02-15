@@ -27,7 +27,7 @@ foreach my $filename (@files) {
             if (exists $data{$i}) {
                 if ($expr[$i] eq "NA" or $expr[$i] eq "Inf") {
                     # OJO CON LOS INFINITOS
-                    delete $data{$i};
+                    #delete $data{$i};
                     next;
                 } else {
                     $data{$i}->{$gene} = $expr[$i];
@@ -37,8 +37,8 @@ foreach my $filename (@files) {
         }
 
     }
-    print Dumper(%data);
-
+    print Dumper(\%data);
+#
 }
 
 sub master_key {
