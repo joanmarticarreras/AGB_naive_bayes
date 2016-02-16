@@ -61,4 +61,7 @@ The number is 288.
 
 ### Do NotSoNaive.pl
 - [x] Filter which genes have at leat 1 value as NA or Inf, and store it within a hash.
-- [x] Filter from the test & training set those genes.
+    - Filter from the test & training set those genes.
+- [x] Calcule Liklihoods.
+- [ ] Calcule Conditional entropies.
+- [ ] Calcule entropies.
