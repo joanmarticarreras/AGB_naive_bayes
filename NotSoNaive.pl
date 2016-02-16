@@ -47,15 +47,25 @@ if ($options{"help"}) {
 
 my @train_files = split /,/, $options{"train"};
 my $not_valid   = read_not_valid($options{"notvalid"});
-my %model       = ();
+my %likelihoods = ();
+my @cancer_probs = (
+    1/8,
+    1/8,
+    1/8,
+    1/8,
+    1/8,
+    1/8,
+    1/8,
+    1/8
+);
 
 foreach my $t_file (@train_files) {
-    model_charger(\%model, $t_file);
+    model_charger(\%likelihoods, $t_file, $not_valid);
 }
 
-mutual_information(\%model, \@train_files);
+mutual_information(\%likelihoods, \@cancer_probs);
 
-print Dumper(\%model);
+print Dumper(\%likelihoods);
 
 #===============================================================================
 # FUNCTIONS
@@ -76,27 +86,29 @@ sub read_not_valid {
 
 #--------------------------------------------------------------------------------
 sub model_charger {
-    my $model     = shift;
-    my $t_file    = shift;
-    my $not_valid = shift;
-
+    my $likelihoods = shift;
+    my $t_file      = shift;
+    my $not_valid   = shift;
+    my $cancer      = $t_file;
+    $cancer =~ s/.+\_(.+)\.tbl/$1/g;
     my $fh = master_key($t_file);
 
     my $first_line = <$fh>;
     while (<$fh>) {
         chomp;
+        next unless /[^\s]/;
         my ($gene, @expr) = split /\t/;
         next if exists $not_valid->{$gene};
 
-        $model->{$t_file} = ()
-            unless exists $model->{$t_file};
-        $model->{$t_file}->{$gene} = ()
-            unless exists $model->{$t_file}->{$gene};
+        $likelihoods->{$cancer} = ()
+            unless exists $likelihoods->{$cancer};
+        $likelihoods->{$cancer}->{$gene} = ()
+            unless exists $likelihoods->{$cancer}->{$gene};
         foreach my $ex_val (@expr) {
-            $model->{$t_file}->{$gene}->{$ex_val}++;
-            $model->{$t_file}->{$gene}->{'total'}++;
+            $likelihoods->{$cancer}->{$gene}->{$ex_val}++;
+            $likelihoods->{$cancer}->{$gene}->{'total'}++;
         }
-        add_pseudocounts(\%model, $t_file, $gene);
+        add_pseudocounts($likelihoods, $cancer, $gene);
 
     }
     return;
@@ -130,18 +142,46 @@ sub compute_probabilities {
 
 #--------------------------------------------------------------------------------
 sub mutual_information {
-    my $model       = shift;
-    my $train_files = shift;
-    my $class_entropy = entropy($train_files);
-    my $condi_entropy = conditional_entropy($model);
+    my $likelihoods     = shift;
+    my $c_probabilities = shift;
+    my $class_entropy   = entropy($c_probabilities);
+    foreach my $gene (keys %{ $likelihoods->{"brca"} }) {
+        # we use brca to get the genes, but we could use whatever cancer
+        # we want.
+        my $condi_entropy = conditional_entropy($gene, $likelihoods);
+
+    }
+
+    return;
+}
+
+#--------------------------------------------------------------------------------
+sub conditional_entropy {
+    my $gene        = shift;
+    my $likelihoods = shift;
+
+    my $total_people = 0;
+    foreach my $expr ("up", "down", "nochange") {
+        my $total_expr = 0;
+        foreach my $cancer ("brca", "coad", "hnsc", "kric", "luad", "lusc", "prad", "thca") {
+            $total_expr   += $likelihoods->{$cancer}->{$gene}->{$expr};
+            $total_people += $likelihoods->{$cancer}->{$gene}->{$expr};
+        }
+    }
+    # This can return something like:
+    # {up}       => number
+    # {down}     => number
+    # {nochange} => number
 
 }
 
 #--------------------------------------------------------------------------------
 sub entropy {
-    my $classes = shift;
-    my $total   = scalar(@{ $classes });
-    my $result  = log2($total);
+    my $probabilities = shift;
+    my $result = 0;
+    foreach my $prob (@{$probabilities}) {
+        $result -= $prob * log2($prob);
+    }
 
     return $result;
 }
