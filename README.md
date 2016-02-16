@@ -53,6 +53,12 @@ The number is 288.
 
 
 ### Do parser.pl
-Done
+- [x] Filter train & testing (144 each), where 288 is the minumum number of samples from the cancer type files.
+    - WARNING: 144 --> 147 when applying pseudocounts.
+
+- [x] The filter was pseudo-randomized (odds -> test, even -> train). Better against stratification than 0..143 vs 144..end.
+- [x] Create a bunch of test and train files.
 
 ### Do NotSoNaive.pl
+- [x] Filter which genes have at leat 1 value as NA or Inf, and store it within a hash.
+- [x] Filter from the test & training set those genes.
