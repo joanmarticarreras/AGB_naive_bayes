@@ -70,7 +70,9 @@ The number is 288.
 ### One command to rule them all
 
 ```bash
-perl NotSoNaive.pl -train sources/train_brca.tbl,sources/train_thca.tbl,sources/train_coad.tbl,sources/train_hnsc.tbl,sources/train_kric.tbl,sources/train_luad.tbl,sources/train_lusc.tbl,sources/train_prad.tbl -test sources/test_brca.tbl,sources/test_thca.tbl,sources/test_coad.tbl,sources/test_hnsc.tbl,sources/test_kric.tbl,sources/test_luad.tbl,sources/test_lusc.tbl,sources/test_prad.tbl -not not_valid_genes.txt | egrep "IG:" > information_gain.tbl
+perl NotSoNaive.pl -train \ sources/train_brca.tbl,sources/train_thca.tbl,sources/train_coad.tbl,sources/train_hnsc.tbl,sources/train_kric.tbl,sources/train_luad.tbl,sources/train_lusc.tbl,sources/train_prad.tbl \
+-test \ sources/test_brca.tbl,sources/test_thca.tbl,sources/test_coad.tbl,sources/test_hnsc.tbl,sources/test_kric.tbl,sources/test_luad.tbl,sources/test_lusc.tbl,sources/test_prad.tbl \
+-not not_valid_genes.txt | egrep "IG:" > information_gain.tbl
 ```
 
 ### Information gain

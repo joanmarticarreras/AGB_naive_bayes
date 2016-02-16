@@ -216,7 +216,7 @@ sub conditional_entropy {
     $result{"down"}     = $result{"down"} /$total_people;
     $result{"nochange"} = $result{"nochange"} /$total_people;
 
-    # This can return something like:
+    # This returns something like:
     # {up}       => number
     # {down}     => number
     # {nochange} => number
