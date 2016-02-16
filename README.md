@@ -16,13 +16,13 @@ INFO AT: http://regulatorygenomics.upf.edu/courses/Master_AGB/Exercise_NaiveBaye
 ```bash
 mkdir sources
 
-wget http://regulatorygenomics.upf.edu/courses/Master_AGB/Exercise_NaiveBayes/brca_gene_zscore_full-filtered.txt -O ./sources/brca.tbl && \ 
-wget http://regulatorygenomics.upf.edu/courses/Master_AGB/Exercise_NaiveBayes/coad_gene_zscore_full-filtered.txt -O ./sources/coad.tbl && \ 
-wget http://regulatorygenomics.upf.edu/courses/Master_AGB/Exercise_NaiveBayes/hnsc_gene_zscore_full-filtered.txt -O ./sources/hnsc.tbl && \ 
-wget http://regulatorygenomics.upf.edu/courses/Master_AGB/Exercise_NaiveBayes/kirc_gene_zscore_full-filtered.txt -O ./sources/kric.tbl && \ 
-wget http://regulatorygenomics.upf.edu/courses/Master_AGB/Exercise_NaiveBayes/luad_gene_zscore_full-filtered.txt -O ./sources/luad.tbl && \ 
-wget http://regulatorygenomics.upf.edu/courses/Master_AGB/Exercise_NaiveBayes/lusc_gene_zscore_full-filtered.txt -O ./sources/lusc.tbl && \ 
-wget http://regulatorygenomics.upf.edu/courses/Master_AGB/Exercise_NaiveBayes/prad_gene_zscore_full-filtered.txt -O ./sources/prad.tbl && \ 
+wget http://regulatorygenomics.upf.edu/courses/Master_AGB/Exercise_NaiveBayes/brca_gene_zscore_full-filtered.txt -O ./sources/brca.tbl && \
+wget http://regulatorygenomics.upf.edu/courses/Master_AGB/Exercise_NaiveBayes/coad_gene_zscore_full-filtered.txt -O ./sources/coad.tbl && \
+wget http://regulatorygenomics.upf.edu/courses/Master_AGB/Exercise_NaiveBayes/hnsc_gene_zscore_full-filtered.txt -O ./sources/hnsc.tbl && \
+wget http://regulatorygenomics.upf.edu/courses/Master_AGB/Exercise_NaiveBayes/kirc_gene_zscore_full-filtered.txt -O ./sources/kric.tbl && \
+wget http://regulatorygenomics.upf.edu/courses/Master_AGB/Exercise_NaiveBayes/luad_gene_zscore_full-filtered.txt -O ./sources/luad.tbl && \
+wget http://regulatorygenomics.upf.edu/courses/Master_AGB/Exercise_NaiveBayes/lusc_gene_zscore_full-filtered.txt -O ./sources/lusc.tbl && \
+wget http://regulatorygenomics.upf.edu/courses/Master_AGB/Exercise_NaiveBayes/prad_gene_zscore_full-filtered.txt -O ./sources/prad.tbl && \
 wget http://regulatorygenomics.upf.edu/courses/Master_AGB/Exercise_NaiveBayes/thca_gene_zscore_full-filtered.txt -O ./sources/thca.tbl
 
 ```
@@ -63,5 +63,12 @@ The number is 288.
 - [x] Filter which genes have at leat 1 value as NA or Inf, and store it within a hash.
     - Filter from the test & training set those genes.
 - [x] Calcule Liklihoods.
-- [ ] Calcule Conditional entropies.
-- [ ] Calcule entropies.
+- [x] Calcule Conditional entropies.
+- [x] Calcule entropies.
+- [x] Information gain.
+
+### One command to rule them all
+
+```bash
+perl NotSoNaive.pl -train sources/train_brca.tbl,sources/train_thca.tbl,sources/train_coad.tbl,sources/train_hnsc.tbl,sources/train_kric.tbl,sources/train_luad.tbl,sources/train_lusc.tbl,sources/train_prad.tbl -test sources/test_brca.tbl,sources/test_thca.tbl,sources/test_coad.tbl,sources/test_hnsc.tbl,sources/test_kric.tbl,sources/test_luad.tbl,sources/test_lusc.tbl,sources/test_prad.tbl -not not_valid_genes.txt | egrep "IG:" > information_gain.tbl
+```

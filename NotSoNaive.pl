@@ -149,27 +149,25 @@ sub mutual_information {
     foreach my $gene (keys %{ $likelihoods->{"brca"} }) {
         # we use brca to get the genes, but we could use whatever cancer
         # we want.
-        my $condi_entropy    = conditional_entropy($gene, $likelihoods);
-        my $up_entropy       = compute_entropy("up", $gene, $likelihoods);
-        my $down_entropy     = compute_entropy("down", $gene, $likelihoods);
-        my $nochange_entropy = compute_entropy("nochange", $gene, $likelihoods);
+        my ($condi_entropy, $total_expr) = conditional_entropy($gene, $likelihoods);
+        my $up_entropy       = compute_entropy("up", $gene, $likelihoods, $total_expr);
+        my $down_entropy     = compute_entropy("down", $gene, $likelihoods, $total_expr);
+        my $nochange_entropy = compute_entropy("nochange", $gene, $likelihoods, $total_expr);
 
         my $information_gain = $class_entropy - ($condi_entropy->{"up"} * $up_entropy
                                                 + $condi_entropy->{"down"} * $down_entropy
                                                 + $condi_entropy->{"nochange"} * $nochange_entropy);
 
-        print "\n$gene:\n";
-        print "CLASS: $class_entropy\n";
-        print "Condi_up: $condi_entropy->{up}\n";
-        print "Condi_down: $condi_entropy->{down}\n";
-        print "Condi_nochange: $condi_entropy->{nochange}\n";
-        print "UP_entropu: $up_entropy\n";
-        print "DOWN_entropu: $down_entropy\n";
-        print "NOCHANGE_entropu: $nochange_entropy\n";
-        print "IG: $information_gain\n";
-        print "\n----\n";
-
-        #print "$gene\tUP_entropy: $up_entropy IG: $information_gain\n";
+        # print "\n$gene:\n";
+        # print "CLASS: $class_entropy\n";
+        # print "Condi_up: $condi_entropy->{up}\n";
+        # print "Condi_down: $condi_entropy->{down}\n";
+        # print "Condi_nochange: $condi_entropy->{nochange}\n";
+        # print "UP_entropu: $up_entropy\n";
+        # print "DOWN_entropu: $down_entropy\n";
+        # print "NOCHANGE_entropu: $nochange_entropy\n";
+        # print "IG: $information_gain\n";
+        # print "\n----\n";
     }
 
     return;
@@ -180,10 +178,11 @@ sub compute_entropy {
     my $expr        = shift;
     my $gene        = shift;
     my $likelihoods = shift;
+    my $total_expr  = shift;
 
     my @probabilities = ();
     foreach my $cancer ("brca", "coad", "hnsc", "kric", "luad", "lusc", "prad", "thca") {
-        my $prob = $likelihoods->{"$cancer"}->{"$gene"}->{$expr} / $likelihoods->{"$cancer"}->{"$gene"}->{"total"};
+        my $prob = $likelihoods->{"$cancer"}->{"$gene"}->{$expr} / $total_expr->{$expr};
         push @probabilities, $prob;
     }
     my $entropy = entropy(\@probabilities);
@@ -208,6 +207,11 @@ sub conditional_entropy {
         $result{$expr} = $total_expr;
 
     }
+    my %total_expr = ();
+    $total_expr{"up"}       = $result{"up"};
+    $total_expr{"down"}     = $result{"down"};
+    $total_expr{"nochange"} = $result{"nochange"};
+
     $result{"up"}       = $result{"up"} /$total_people;
     $result{"down"}     = $result{"down"} /$total_people;
     $result{"nochange"} = $result{"nochange"} /$total_people;
@@ -216,7 +220,7 @@ sub conditional_entropy {
     # {up}       => number
     # {down}     => number
     # {nochange} => number
-    return \%result;
+    return \%result, \%total_expr;
 }
 
 #--------------------------------------------------------------------------------
