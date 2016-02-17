@@ -293,7 +293,7 @@ sub predict_cancer {
             my @sorted_cancers = sort {$cancer_probs{$samp}->{$b} <=> $cancer_probs{$samp}->{$a}} keys %{ $cancer_probs{$samp} };
             my $best_prediction = $sorted_cancers[0];
             my $prob = compute_prob($best_prediction, $samp, \%cancer_probs, $cancer);
-            #print "$samp\t$cancer\t$best_prediction\t$cancer_probs{$samp}->{$cancer}\n";
+            print "$samp\t$cancer\t$best_prediction\t$cancer_probs{$samp}->{$cancer}\t$prob\n";
 
         }
 
@@ -311,12 +311,10 @@ sub compute_prob {
 
     foreach my $cancer (@CANCERS) {
         $denominator += 10**($probabilities->{$sample}->{$cancer});
-        print "sc: ", 10**($probabilities->{$sample}->{$cancer}), " ";
     }
-    print "\ndenominator: $denominator\n";
-    print "numerator: ", 10**($probabilities->{$sample}->{$best}), "\n";
+
     $final_p = 10**($probabilities->{$sample}->{$best}) / $denominator;
-    print "F prob: $final_p\t$cancer\t$best\n";
+    return $final_p;
 }
 
 #--------------------------------------------------------------------------------
