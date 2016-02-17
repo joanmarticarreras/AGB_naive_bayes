@@ -5,17 +5,26 @@ use warnings;
 my @files          = @ARGV;
 my $NUM_OF_SAMPLES = 288;
 
+mkdir "set1";
+mkdir "set2";
+
 foreach my $filename (@files) {
     my $file = master_key($filename);
 	my $train_filename = $filename;
     my $test_filename  = $filename;
-	$train_filename    =~ s/\/(.*?)/\/train_$1/g;
-    $test_filename     =~ s/\/(.*?)/\/test_$1/g;
+	$train_filename    =~ s/.+\/(.*?)$/\/train_$1/g;
+    $test_filename     =~ s/.+\/(.*?)$/\/test_$1/g;
 
-	open my $train_fh, ">", "$train_filename"
+	open my $train_fh1, ">", "set1/" . "$train_filename"
 		or die "Can't write to $train_filename : $!\n";
 
-    open my $test_fh, ">", "$test_filename"
+    open my $test_fh1, ">", "set1/" . "$test_filename"
+    	or die "Can't write to $test_filename : $!\n";
+
+    open my $train_fh2, ">", "set2/" . "$train_filename"
+    	or die "Can't write to $train_filename : $!\n";
+
+    open my $test_fh2, ">", "set2/" . "$test_filename"
     	or die "Can't write to $test_filename : $!\n";
 
    	my $first_line = <$file>;
@@ -23,13 +32,17 @@ foreach my $filename (@files) {
     @samples = @samples[0..$NUM_OF_SAMPLES - 1];
     foreach my $i (0..$#samples) {
         if ($i % 2 == 0) {
-            print $train_fh "$samples[$i]\t";
+            print $train_fh1 "$samples[$i]\t";
+            print $test_fh2  "$samples[$i]\t";
         } else {
-            print $test_fh "$samples[$i]\t";
+            print $test_fh1  "$samples[$i]\t";
+            print $train_fh2 "$samples[$i]\t";
         }
     }
-    print $train_fh "\n";
-    print $test_fh  "\n";
+    print $train_fh1 "\n";
+    print $test_fh1  "\n";
+    print $train_fh2 "\n";
+    print $test_fh2  "\n";
 
     while (<$file>){
 	   chomp;
@@ -45,18 +58,24 @@ foreach my $filename (@files) {
 
        @new_expr = @new_expr[0..$NUM_OF_SAMPLES -1 ];
 
-       print $train_fh "$gene\t";
-       print $test_fh  "$gene\t";
+       print $train_fh1 "$gene\t";
+       print $test_fh1  "$gene\t";
+       print $train_fh2 "$gene\t";
+       print $test_fh2  "$gene\t";
 
        foreach my $i (0..$#new_expr) {
            if ($i % 2 == 0) {
-               print $train_fh "$new_expr[$i]\t";
+               print $train_fh1 "$new_expr[$i]\t";
+               print $test_fh2 "$new_expr[$i]\t";
            } else {
-               print $test_fh "$new_expr[$i]\t";
+               print $test_fh1 "$new_expr[$i]\t";
+               print $train_fh2 "$new_expr[$i]\t";
            }
        }
-       print $train_fh "\n";
-       print $test_fh  "\n";
+       print $train_fh1 "\n";
+       print $test_fh1  "\n";
+       print $train_fh2 "\n";
+       print $test_fh2  "\n";
 	}
 
 }
