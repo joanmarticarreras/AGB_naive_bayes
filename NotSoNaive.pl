@@ -26,8 +26,7 @@ my %options;
 GetOptions (
     \%options    ,
     "help|?"     ,
-    "train=s"    ,
-    "test=s"     ,
+    "directory=s",
     "notvalid=s" ,
     "igthreshold=s",
 );
@@ -40,20 +39,16 @@ if (not $options{"igthreshold"}) {
 if ($options{"help"}) {
     print "BLA";
     exit(0);
-} elsif (not $options{"train"}) {
-    die "You have to introduce training files separated by commas\n";
-} elsif (not $options{"test"}) {
-    die "You have to introduce one test file to make the predictions\n";
+} elsif (not $options{"directory"}) {
+    die "You have to introduce the directory where the files are.\n";
 }
-
 
 #===============================================================================
 # MAIN
 #===============================================================================
 
 my @CANCERS = ("brca", "coad", "hnsc", "kric", "luad", "lusc", "prad", "thca");
-my @train_files = split /,/, $options{"train"};
-my @test_files  = split /,/, $options{"test"};
+my $directory = $options{"directory"};
 my $not_valid   = read_not_valid($options{"notvalid"});
 my %likelihoods = ();
 my %priors = (
@@ -68,13 +63,17 @@ my %priors = (
 );
 my @priors_arr = values %priors;
 
-foreach my $t_file (@train_files) {
-    model_charger(\%likelihoods, $t_file, $not_valid);
+foreach my $train_files (glob("$directory/train_*")) {
+    model_charger(\%likelihoods, $train_files, $not_valid);
 }
 
 my $rel_likelihoods = mutual_information(\%likelihoods, \@priors_arr);
 undef %likelihoods;
+
+my @test_files = glob("$directory/test_*");
+
 predict_cancer($rel_likelihoods, \@test_files, \%priors);
+
 #print Dumper($rel_likelihoods);
 
 
