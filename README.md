@@ -70,9 +70,11 @@ The number is 288.
 ### One command to rule them all
 
 ```bash
-perl NotSoNaive.pl -train \ sources/train_brca.tbl,sources/train_thca.tbl,sources/train_coad.tbl,sources/train_hnsc.tbl,sources/train_kric.tbl,sources/train_luad.tbl,sources/train_lusc.tbl,sources/train_prad.tbl \
--test \ sources/test_brca.tbl,sources/test_thca.tbl,sources/test_coad.tbl,sources/test_hnsc.tbl,sources/test_kric.tbl,sources/test_luad.tbl,sources/test_lusc.tbl,sources/test_prad.tbl \
--not not_valid_genes.txt | egrep "IG:" > information_gain.tbl
+for int in 0.1 0.15 0.2 0.25 0.3 0.35 0.4 0.45 0.5 0.55 0.6 0.65 0.7 0.75 0.8 0.85 0.9 0.95 1; do \
+perl NotSoNaive.pl -train sources/train_brca.tbl,sources/train_thca.tbl,sources/train_coad.tbl,sources/train_hnsc.tbl,sources/train_kric.tbl,sources/train_luad.tbl,sources/train_lusc.tbl,sources/train_prad.tbl -test sources/test_brca.tbl,sources/test_thca.tbl,sources/test_coad.tbl,sources/test_hnsc.tbl,sources/test_kric.tbl,sources/test_luad.tbl,sources/test_lusc.tbl,sources/test_prad.tbl -not not_valid_genes.txt -ig "$int" > results_${int}.tbl; done
+
+for int in 0.1 0.15 0.2 0.25 0.3 0.35 0.4 0.45 0.5 0.55 0.6 0.65 0.7 0.75 0.8 0.85 0.9 0.95 1; do \
+perl -e '$int = shift @ARGV; $pos = 0; $tot = 0; while(<>) {@cols = split /\t/; if ($cols[1] eq $cols[2]) {$pos++; $tot++;} else {$tot++; }} print "$int\t", $pos / $tot, "\n";' "$int" results_${int}.tbl >> tp.tbl; done
 ```
 
 ### Information gain

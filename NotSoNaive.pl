@@ -29,7 +29,13 @@ GetOptions (
     "train=s"    ,
     "test=s"     ,
     "notvalid=s" ,
+    "igthreshold=s",
 );
+
+if (not $options{"igthreshold"}) {
+    # This magic number is the 3rd percentile of our computed IGs
+    $options{"igthreshold"} = "0.241287";
+}
 
 if ($options{"help"}) {
     print "BLA";
@@ -45,26 +51,31 @@ if ($options{"help"}) {
 # MAIN
 #===============================================================================
 
+my @CANCERS = ("brca", "coad", "hnsc", "kric", "luad", "lusc", "prad", "thca");
 my @train_files = split /,/, $options{"train"};
+my @test_files  = split /,/, $options{"test"};
 my $not_valid   = read_not_valid($options{"notvalid"});
 my %likelihoods = ();
-my @cancer_probs = (
-    1/8,
-    1/8,
-    1/8,
-    1/8,
-    1/8,
-    1/8,
-    1/8,
-    1/8
+my %priors = (
+    "brca" => 1/8,
+    "coad" => 1/8,
+    "hnsc" => 1/8,
+    "kric" => 1/8,
+    "luad" => 1/8,
+    "lusc" => 1/8,
+    "prad" => 1/8,
+    "thca" => 1/8
 );
+my @priors_arr = values %priors;
 
 foreach my $t_file (@train_files) {
     model_charger(\%likelihoods, $t_file, $not_valid);
 }
 
-mutual_information(\%likelihoods, \@cancer_probs);
-print Dumper(\%likelihoods);
+my $rel_likelihoods = mutual_information(\%likelihoods, \@priors_arr);
+undef %likelihoods;
+predict_cancer($rel_likelihoods, \@test_files, \%priors);
+#print Dumper($rel_likelihoods);
 
 
 #===============================================================================
@@ -96,7 +107,7 @@ sub model_charger {
     my $first_line = <$fh>;
     while (<$fh>) {
         chomp;
-        next unless /[^\s]/;
+        next unless /[^\s\t]/;
         my ($gene, @expr) = split /\t/;
         next if exists $not_valid->{$gene};
 
@@ -142,9 +153,10 @@ sub compute_probabilities {
 
 #--------------------------------------------------------------------------------
 sub mutual_information {
-    my $likelihoods     = shift;
-    my $c_probabilities = shift;
-    my $class_entropy   = entropy($c_probabilities);
+    my $likelihoods          = shift;
+    my $c_probabilities      = shift;
+    my $relevant_likelihoods = ();
+    my $class_entropy        = entropy($c_probabilities);
 
     foreach my $gene (keys %{ $likelihoods->{"brca"} }) {
         # we use brca to get the genes, but we could use whatever cancer
@@ -158,6 +170,17 @@ sub mutual_information {
                                                 + $condi_entropy->{"down"} * $down_entropy
                                                 + $condi_entropy->{"nochange"} * $nochange_entropy);
 
+        if ($information_gain >= $options{"igthreshold"}) {
+            foreach my $cancer (@CANCERS) {
+                $relevant_likelihoods->{$cancer}->{$gene}->{"up"}
+                    = log($likelihoods->{$cancer}->{$gene}->{"up"} / $likelihoods->{$cancer}->{$gene}->{"total"});
+                $relevant_likelihoods->{$cancer}->{$gene}->{"down"}
+                    = log($likelihoods->{$cancer}->{$gene}->{"down"} / $likelihoods->{$cancer}->{$gene}->{"total"});
+                $relevant_likelihoods->{$cancer}->{$gene}->{"nochange"}
+                    = log($likelihoods->{$cancer}->{$gene}->{"nochange"} / $likelihoods->{$cancer}->{$gene}->{"total"});
+            }
+        }
+
         # print "\n$gene:\n";
         # print "CLASS: $class_entropy\n";
         # print "Condi_up: $condi_entropy->{up}\n";
@@ -170,7 +193,7 @@ sub mutual_information {
         # print "\n----\n";
     }
 
-    return;
+    return $relevant_likelihoods;
 }
 
 #--------------------------------------------------------------------------------
@@ -181,7 +204,7 @@ sub compute_entropy {
     my $total_expr  = shift;
 
     my @probabilities = ();
-    foreach my $cancer ("brca", "coad", "hnsc", "kric", "luad", "lusc", "prad", "thca") {
+    foreach my $cancer (@CANCERS) {
         my $prob = $likelihoods->{"$cancer"}->{"$gene"}->{$expr} / $total_expr->{$expr};
         push @probabilities, $prob;
     }
@@ -200,7 +223,7 @@ sub conditional_entropy {
     my %result       = ();
     foreach my $expr ("up", "down", "nochange") {
         my $total_expr = 0;
-        foreach my $cancer ("brca", "coad", "hnsc", "kric", "luad", "lusc", "prad", "thca") {
+        foreach my $cancer (@CANCERS) {
             $total_expr   += $likelihoods->{"$cancer"}->{"$gene"}->{"$expr"};
             $total_people += $likelihoods->{"$cancer"}->{"$gene"}->{"$expr"};
         }
@@ -232,6 +255,48 @@ sub entropy {
     }
 
     return $result;
+}
+
+#--------------------------------------------------------------------------------
+sub predict_cancer {
+    my $likelihoods  = shift;
+    my $test_files   = shift;
+    my $priors       = shift;
+    my %cancer_probs = ();
+
+    foreach my $t_file (@{ $test_files }) {
+        my $cancer = $t_file;
+        $cancer =~ s/.+\_(.+)\.tbl/$1/g;
+        my $fh = master_key($t_file);
+        my $first = <$fh>;
+        chomp($first);
+        my @samples = split /\t/, $first;
+
+        foreach my $s (@samples) {
+            foreach my $c (@CANCERS) {
+                $cancer_probs{$s}->{$c} = log($priors->{$c});
+            }
+        }
+        while (<$fh>) {
+            chomp;
+            my ($gene, @expr) = split /\t/;
+            next unless /[^\s\t]/;
+            next unless exists $likelihoods->{"brca"}->{$gene};
+            foreach my $i (0..$#expr) {
+                foreach my $c (@CANCERS) {
+                    $cancer_probs{$samples[$i]}->{$c} += $likelihoods->{$c}->{$gene}->{$expr[$i]};
+                }
+            }
+        }
+
+        foreach my $samp (@samples) {
+            my ($best_prediction) = sort {$cancer_probs{$samp}->{$b} <=> $cancer_probs{$samp}->{$a}} keys %{ $cancer_probs{$samp} };
+            print "$samp\t$cancer\t$best_prediction\t$cancer_probs{$samp}->{$cancer}\n";
+
+        }
+
+    }
+
 }
 
 #--------------------------------------------------------------------------------
