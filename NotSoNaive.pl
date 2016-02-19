@@ -271,18 +271,23 @@ sub predict_cancer {
         chomp($first);
         my @samples = split /\t/, $first;
 
+        SAMPLE:
         foreach my $s (@samples) {
             foreach my $c (@CANCERS) {
+                next SAMPLE unless $s =~ /[^\s\t]/; # avoid whitespace
                 $cancer_probs{$s}->{$c} = log($priors->{$c});
             }
         }
+
         while (<$fh>) {
             chomp;
             my ($gene, @expr) = split /\t/;
-            next unless /[^\s\t]/;
+            next unless /[^\s\t]/; # avoid whitespace
             next unless exists $likelihoods->{"brca"}->{$gene};
+
             foreach my $i (0..$#expr) {
                 foreach my $c (@CANCERS) {
+                    next unless defined $samples[$i];
                     $cancer_probs{$samples[$i]}->{$c} += $likelihoods->{$c}->{$gene}->{$expr[$i]};
                 }
             }
@@ -304,7 +309,7 @@ sub compute_prob {
     my $best          = shift;
     my $sample        = shift;
     my $probabilities = shift;
-    my $cancer = shift;
+    my $cancer        = shift;
     my $final_p       = 0;
     my $denominator   = 0;
 
