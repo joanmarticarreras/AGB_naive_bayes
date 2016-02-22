@@ -70,7 +70,7 @@ The number is 288.
 - [x] Information gain.
 - [x] Use directories instead of a bunch of files.
 - [ ] Mean between set1 and set2 results.
-- [ ] Precision recall by cancer.
+- [x] Precision recall by cancer.
 - [ ] Decide cut-off score, optimizing by precision, maybe recall?
 
 ### One command to rule them all
@@ -86,3 +86,59 @@ perl -e '$int = shift @ARGV; $pos = 0; $tot = 0; while(<>) {@cols = split /\t/; 
 ### Information gain
 * 3rd quantile = 0.241287
 * Number of genes with IG > 3rd quantile = 4755
+
+
+### CANCER PLOTS
+
+```bash
+perl f_calculator.pl results_from_naive.tbl > f_foreachcancer.tbl
+```
+
+```r
+library(ggplot2)
+fcancer <- read.table(file="f_foreachcancer.tbl", header=T, sep="\t")
+ggplot(fcancer) +
+    geom_bar(aes(x=MEASURE, y=VALUE, fill=MEASURE), position="dodge", stat="identity") +
+    facet_wrap(~ CANCER) +
+    theme_bw() +
+    theme(axis.ticks.x=element_blank(),axis.text.x=element_blank()) +
+    xlab("") + ylab("")
+```
+
+
+### IG PLOT
+```bash
+perl -e '
+%data = ();
+while(<>){
+    chomp;
+    ($ig, $set, $value) = split /\t/;
+    $data{$ig}->{$set} = $value;
+};
+foreach my $ig (keys %data) {
+    $mean = 0;
+    $sd = 0;
+    foreach my $set (keys %{$data{$ig} }) {
+        $mean += $data{$ig}->{$set};
+    }
+    foreach my $set (keys %{$data{$ig} }) {
+        $sd += (($data{$ig}->{$set} - ($mean/5)) ** 2)
+    }     
+    print "$ig\t", $mean / 5, "\t", sqrt($sd/4), "\n"
+}' tp.tbl > tp_summary.tbl
+```
+
+
+```r
+library(ggplot2)
+ig3 <- read.table(file="tp_summary.tbl")
+
+ggplot(ig3, aes(x=V1, y=V2, group=1)) +
+    stat_summary(fun.y="mean", geom="line", alpha=0.7) +
+    geom_errorbar(aes(ymin=V2-V3, ymax=V2+V3)) +
+    stat_summary(fun.y="mean", geom="point", alpha=0.8) +
+    theme_bw() +
+    ylim(0,1) +
+    geom_hline(yintercept=0.125, linetype="dashed", alpha=0.7) +
+    xlab("\nI.G. Threshold") + ylab("Precision\n")
+```
