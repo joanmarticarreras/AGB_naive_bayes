@@ -45,10 +45,12 @@ while (<$fh>) {
     }
 }
 
+print "CANCER\tMEASURE\tVALUE\n";
 foreach my $cancer (keys %results) {
     my $precision = $results{$cancer}->{TP} / ($results{$cancer}->{TP} + $results{$cancer}->{FP});
     my $recall    = $results{$cancer}->{TP} / ($results{$cancer}->{TP} + $results{$cancer}->{FN});
     my $f_measure = 2 / ((1/$precision) + (1/$recall));
-
-    printf ("%s\t%.4f\t%.4f\t%.4f\n", $cancer, $precision, $recall, $f_measure);
+    printf ("%s\t%s\t%.4f\n", $cancer, "PRECISION", $precision);
+    printf ("%s\t%s\t%.4f\n", $cancer, "RECALL", $recall);
+    printf ("%s\t%s\t%.4f\n", $cancer, "F", $f_measure);
 }
