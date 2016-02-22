@@ -5,7 +5,7 @@ use Data::Dumper;
 
 my @files          = @ARGV;
 my $NUM_OF_SAMPLES = 288;
-my $K = 5;
+my $K = 4;
 my @CANCERS = ("brca", "coad", "hnsc", "kric", "luad", "lusc", "prad", "thca");
 
 my %FILEHANDLES = ();
@@ -28,14 +28,14 @@ foreach my $i (0..$K) {
 
 foreach my $filename (@files) {
     my $file = master_key($filename);
-	my $train_filename = $filename;
+  my $train_filename = $filename;
     my $test_filename  = $filename;
     my $cancer = $filename;
     $cancer =~ s/.+\/(.+)\.tbl/$1/g;
-	$train_filename    =~ s/.+\/(.*?)$/\/train_$1/g;
+  $train_filename    =~ s/.+\/(.*?)$/\/train_$1/g;
     $test_filename     =~ s/.+\/(.*?)$/\/test_$1/g;
 
-   	my $first_line = <$file>;
+    my $first_line = <$file>;
     chomp($first_line);
     my @samples = split /\t/, $first_line;
     @samples    = @samples[0..$NUM_OF_SAMPLES - 1];
@@ -63,35 +63,31 @@ foreach my $filename (@files) {
 
     my %header_done = ();
     while (<$file>){
-	   chomp;
-	   my ($gene, @expr) = split /\t/;
+     chomp;
+     my ($gene, @expr) = split /\t/;
 
-	   my @new_expr = map {
-		   if     ($_ eq "NA")  { $_ }
-		   elsif  ($_ eq "Inf") { $_ }
-		   elsif  ($_ > 2)  { "up" }
-		   elsif  ($_ < -2) { "down" }
-		   elsif  ($_ > -2 and $_ < 2) { "nochange" }
-		   else { print STDERR "Error...\n"; "ERROR" }
-	   } @expr;
+     my @new_expr = map {
+       if     ($_ eq "NA")  { $_ }
+       elsif  ($_ eq "Inf") { $_ }
+       elsif  ($_ > 2)  { "up" }
+       elsif  ($_ < -2) { "down" }
+       elsif  ($_ > -2 and $_ < 2) { "nochange" }
+       else { print STDERR "Error...\n"; "ERROR" }
+     } @expr;
 
        @new_expr = @new_expr[0..$NUM_OF_SAMPLES -1 ];
 
 
        foreach my $k (0..$K) {
-           my $step     = $k * 48;
+           my $step     = $k * 56;
            my %testing  = ();
            my %training = ();
-           my $initial = 0 + $step;
-           my $max_to_test = 95;
+           my $max_to_test = $step + 56;
 
            # THESE ARE FOR THE TESTING SET
            my $train_f = $FILEHANDLES{"set$k"}->{$cancer}->{"train"};
            my $test_f  = $FILEHANDLES{"set$k"}->{$cancer}->{"test"};
-           foreach my $i ($initial..$#shuff_samples) {
-               if (scalar(keys %testing) >= $max_to_test) {
-                   last;
-               }
+           foreach my $i ($step..$max_to_test) {
                my $prev = $new_to_prev{$i};
                $testing{$i} = $new_expr[$prev];
            }
@@ -102,6 +98,7 @@ foreach my $filename (@files) {
                my $prev = $new_to_prev{$i};
                $training{$i} = $new_expr[$prev];
            }
+
 
            # Print testing and testing sample names
            # only once for CANCER
@@ -132,7 +129,7 @@ foreach my $filename (@files) {
 
        }
 
-	}
+  }
 
 }
 
