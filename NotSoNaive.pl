@@ -316,6 +316,13 @@ sub compute_prob {
     foreach my $cancer (@CANCERS) {
         $denominator += 10**($probabilities->{$sample}->{$cancer});
     }
+    if ($denominator == 0) {
+        $denominator = 1;
+        # We did this to avoid floating point overflow that
+        # produces an ilegal division by zero. All the probabilities will be wrong
+        # for this sample.
+        print STDERR "$sample probability will be wrong because of floating point problems: limit of Perl precision.\n";
+    }
 
     $final_p = 10**($probabilities->{$sample}->{$best}) / $denominator;
     return $final_p;
