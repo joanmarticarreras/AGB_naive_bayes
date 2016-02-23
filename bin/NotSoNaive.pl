@@ -32,7 +32,7 @@ Path to the directory with the files created by tt_separator.pl
 
 Text file with a list of genes to skip.
 
-=item B<-i>, B<-igthreshold> FLOAT
+=item B<-i>, B<-igthreshold> <float>
 
 Floating point specifying the information gain (a.k.a. mutual information) threshold. Only the genes with an IG above this value will be used to build the model.
 
@@ -41,7 +41,6 @@ Floating point specifying the information gain (a.k.a. mutual information) thres
 =head1 AUTHORS
 
 Joan Marti i Carreras, Sergio Castillo Lara
-
 
 =cut
 
@@ -59,6 +58,8 @@ pod2usage( -verbose => 0,
            -output  => \*STDOUT   ) unless @ARGV;
 
 my %options;
+$options{igthreshold} = "0.5"; # DEFAULT VALUE FOR Information Gain.
+
 GetOptions (
     \%options    ,
     "help|?"     ,
@@ -68,26 +69,21 @@ GetOptions (
 );
 
 pod2usage( -verbose => 1,
-           -output  => \*STDOUT   ) if $options{help};
+           -output  => \*STDERR   ) if $options{help};
 
-if (not $options{"igthreshold"}) {
-    # This magic number is the 3rd percentile of our computed IGs
-    $options{"igthreshold"} = "0.241287";
+if (not $options{directory}) {
+    print STDERR "\n[ERROR]\nYou have to give me a directory! See:\n\n";
+    pod2usage( -verbose => ,
+               -output  => \*STDERR   );
 }
 
-if ($options{"help"}) {
-    print "BLA";
-    exit(0);
-} elsif (not $options{"directory"}) {
-    die "You have to introduce the directory where the files are.\n";
-}
 
 #===============================================================================
 # MAIN
 #===============================================================================
 
-my @CANCERS = ("brca", "coad", "hnsc", "kric", "luad", "lusc", "prad", "thca");
-my $directory = $options{"directory"};
+my @CANCERS     = ("brca", "coad", "hnsc", "kric", "luad", "lusc", "prad", "thca");
+my $directory   = $options{"directory"};
 my $not_valid   = read_not_valid($options{"notvalid"});
 my %likelihoods = ();
 my %priors = (
@@ -102,19 +98,28 @@ my %priors = (
 );
 my @priors_arr = values %priors;
 
-foreach my $train_files (glob("$directory/train_*")) {
+# Getting and checking train/test files
+my @train_files = glob("$directory/train_*");
+my @test_files  = glob("$directory/test_*");
+
+unless (@train_files == 8) {
+    die "\n[ERROR]\nCan't find train_* files in $options{directory}!\n\n";
+}
+unless (@test_files == 8) {
+    die "\n[ERROR]\nCan't find test_* files in $options{directory}!\n\n";
+}
+
+
+# Reading files
+foreach my $train_files (@train_files) {
     model_charger(\%likelihoods, $train_files, $not_valid);
 }
 
 my $rel_likelihoods = mutual_information(\%likelihoods, \@priors_arr);
 undef %likelihoods;
 
-my @test_files = glob("$directory/test_*");
 
 predict_cancer($rel_likelihoods, \@test_files, \%priors);
-
-#print Dumper($rel_likelihoods);
-
 
 #===============================================================================
 # FUNCTIONS
@@ -218,7 +223,6 @@ sub mutual_information {
                     = log($likelihoods->{$cancer}->{$gene}->{"nochange"} / $likelihoods->{$cancer}->{$gene}->{"total"});
             }
         }
-
         # print "\n$gene:\n";
         # print "CLASS: $class_entropy\n";
         # print "Condi_up: $condi_entropy->{up}\n";
@@ -250,7 +254,6 @@ sub compute_entropy {
 
     return($entropy)
 }
-
 
 #--------------------------------------------------------------------------------
 sub conditional_entropy {
@@ -344,6 +347,7 @@ sub predict_cancer {
 
 }
 
+#--------------------------------------------------------------------------------
 sub compute_prob {
     my $best          = shift;
     my $sample        = shift;
