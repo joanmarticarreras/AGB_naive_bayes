@@ -1,14 +1,47 @@
 #/usr/bin/perl
 
-=head 1 NAME
+=head1 NAME
 
 NotSoNaive.pl
 
-=head 1 VERSION
+=head1 VERSION
 
 v.0.1.0
 
-=head 1 Usage
+=head1 DESCRIPTION
+
+This program takes a list of files with gene expression patterns from cancer patients and builds (and evaluates) a Naive Bayes.
+
+=head1 USAGE
+
+perl NotSoNaive.pl -d DIRECTORY -not not_valid_genes.txt -ig FLOAT
+
+=head1 OPTIONS
+
+=over 8
+
+=item B<-h>, B<-help>
+
+Shows this help.
+
+=item B<-d>, B<-directory> <path>
+
+Path to the directory with the files created by tt_separator.pl
+
+=item B<-n>, B<-notvalid> <file>
+
+Text file with a list of genes to skip.
+
+=item B<-i>, B<-igthreshold> FLOAT
+
+Floating point specifying the information gain (a.k.a. mutual information) threshold. Only the genes with an IG above this value will be used to build the model.
+
+=back
+
+=head1 AUTHORS
+
+Joan Marti i Carreras, Sergio Castillo Lara
+
 
 =cut
 
@@ -20,7 +53,10 @@ v.0.1.0
 use warnings;
 use strict;
 use Getopt::Long qw(:config no_ignore_case);
-use Data::Dumper;
+use Pod::Usage;
+
+pod2usage( -verbose => 0,
+           -output  => \*STDOUT   ) unless @ARGV;
 
 my %options;
 GetOptions (
@@ -30,6 +66,9 @@ GetOptions (
     "notvalid=s" ,
     "igthreshold=s",
 );
+
+pod2usage( -verbose => 1,
+           -output  => \*STDOUT   ) if $options{help};
 
 if (not $options{"igthreshold"}) {
     # This magic number is the 3rd percentile of our computed IGs
