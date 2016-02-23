@@ -1,16 +1,41 @@
 #/usr/bin/perl
 
-=head 1 NAME
+=head1 NAME
 
 tt_separator.pl
 
-=head 1 VERSION
+=head1 VERSION
 
 v.0.1.0
 
-=head 1 Usage
+=head1 DESCRIPTION
+
+This program takes a directory with files of cancer gene expression patterns, creats random subsets of test and training and helps to create a k-fold validation
+
+=head1 USAGE
+
+perl tt_separator.pl -d DIRECTORY
+
+=head1 OPTIONS
+
+=over 8
+
+=item B<-h>, B<-help>
+
+Shows this help.
+
+=item B<-d>, B<-directory> <path>
+
+Path to the directory with the files created by tt_separator.pl
+
+=back
+
+=head1 AUTHORS
+
+Joan Marti i Carreras, Sergio Castillo Lara
 
 =cut
+
 
 #===============================================================================
 # VARIABLES AND OPTIONS
