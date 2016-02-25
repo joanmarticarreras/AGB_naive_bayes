@@ -1,16 +1,16 @@
 #/usr/bin/perl
 
-=head1 NAME
+=head 1 NAME
 
 tt_separator.pl
 
-=head1 VERSION
+=head 1 VERSION
 
 v.0.1.0
 
 =head1 DESCRIPTION
 
-This program takes a directory with files of cancer gene expression patterns, creats random subsets of test and training and helps to create a k-fold validation
+This program takes a list of files with gene expression patterns from cancer patients and builds (and evaluates) a Naive Bayes.
 
 =head1 USAGE
 
@@ -35,8 +35,6 @@ Path to the directory with the files created by tt_separator.pl
 Joan Marti i Carreras, Sergio Castillo Lara
 
 =cut
-
-
 #===============================================================================
 # VARIABLES AND OPTIONS
 #===============================================================================
@@ -101,17 +99,17 @@ foreach my $filename (@files) {
 
     my %header_done = ();
     while (<$file>){
-        chomp;
-        my ($gene, @expr) = split /\t/;
+     chomp;
+     my ($gene, @expr) = split /\t/;
 
      # Discretization of expression values and dealing with NA and Inf
      my @new_expr = map {
-        if     ($_ eq "NA")  { $_ }
-        elsif  ($_ eq "Inf") { $_ }
-        elsif  ($_ > 2)  { "up" }
-        elsif  ($_ < -2) { "down" }
-        elsif  ($_ > -2 and $_ < 2) { "nochange" }
-        else { print STDERR "Error...\n"; "ERROR" }
+       if     ($_ eq "NA")  { $_ }
+       elsif  ($_ eq "Inf") { $_ }
+       elsif  ($_ > 2)  { "up" }
+       elsif  ($_ < -2) { "down" }
+       elsif  ($_ > -2 and $_ < 2) { "nochange" }
+       else { print STDERR "Error...\n"; "ERROR" }
      } @expr;
 
        @new_expr = @new_expr[0..$NUM_OF_SAMPLES -1 ];
