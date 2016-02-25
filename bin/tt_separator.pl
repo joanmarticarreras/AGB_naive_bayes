@@ -8,10 +8,33 @@ tt_separator.pl
 
 v.0.1.0
 
-=head 1 Usage
+=head1 DESCRIPTION
+
+This program takes a list of files with gene expression patterns from cancer patients and builds (and evaluates) a Naive Bayes.
+
+=head1 USAGE
+
+perl tt_separator.pl -d DIRECTORY
+
+=head1 OPTIONS
+
+=over 8
+
+=item B<-h>, B<-help>
+
+Shows this help.
+
+=item B<-d>, B<-directory> <path>
+
+Path to the directory with the files created by tt_separator.pl
+
+=back
+
+=head1 AUTHORS
+
+Joan Marti i Carreras, Sergio Castillo Lara
 
 =cut
-
 #===============================================================================
 # VARIABLES AND OPTIONS
 #===============================================================================
