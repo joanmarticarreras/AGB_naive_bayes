@@ -49,6 +49,7 @@ We need to know the minumum number of samples in each cancer type, because it wi
 gawk '{print FILENAME, NF}' f_* | sort | uniq | more
 
 ```
+
 The number is 288.
 
 
@@ -59,7 +60,8 @@ The number is 288.
 - [x] The filter was pseudo-randomized (odds -> test, even -> train). Better against stratification than 0..143 vs 144..end.
 - [x] Create a bunch of test and train files.
 - [x] Create x2 test and train files sets.
-- [ ] Change proportion train vs test.
+- [x] Change proportion train vs test.
+- [x] Implemented a k-fold validation, where k = 5
 
 ### Do NotSoNaive.pl
 - [x] Filter which genes have at leat 1 value as NA or Inf, and store it within a hash.
@@ -69,9 +71,10 @@ The number is 288.
 - [x] Calcule entropies.
 - [x] Information gain.
 - [x] Use directories instead of a bunch of files.
-- [ ] Mean between set1 and set2 results.
+- [x] Mean between sets.
 - [x] Precision recall by cancer.
-- [ ] Decide cut-off score, optimizing by precision, maybe recall?
+- [x] Calculate F.
+- [x] Decide cut-off score/probability.
 
 ### One command to rule them all
 
@@ -187,7 +190,6 @@ ggplot(ig3, aes(x=V1, y=V2, group=1)) +
     xlab("\nI.G. Threshold") + ylab("Precision\n")
 ```
 
-<<<<<<< HEAD
 
 ## Genes with IG > 0.65
 
@@ -238,14 +240,7 @@ perl -e '$int = shift @ARGV; $pos = 0; $tot = 0; while(<>) {@cols = split /\t/; 
 
 ```
 
-Overall analysis, filtering by probability of 1:
-  - 92% precision
-  - 82% recall
+Maybe it is better to work with scores, rather than probabilities due to perl overfloat issues.
 
-Recall is way better using probabilties rathar than score for filtering, as less samples are lost, so less worse is FN.
+-[x] Do the graphics
 
-
-
--[ ] Do the graphics
-
-NOPE, don't have ggplot

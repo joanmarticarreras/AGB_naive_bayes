@@ -60,6 +60,7 @@ foreach my $file (@files) {
 
     open my $fh, "<", $file
         or die "Can't open $file :$!\n";
+    print"$file\n";
 
     # Initialize cancers:
     my %results = ();
@@ -118,5 +119,7 @@ foreach my $file (@files) {
         printf ("%s\t%s\t%.4f\n", $cancer, "RECALL", $recall);
         printf ("%s\t%s\t%.4f\n", $cancer, "F", $f_measure);
     }
+
+        print("###################################################\n");
 
 }
