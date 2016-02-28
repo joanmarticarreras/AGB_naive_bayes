@@ -182,6 +182,14 @@ perl -e '$int = shift @ARGV; $pos = 0; $tot = 0; while(<>) {@cols = split /\t/; 
 
 ```
 
+Overall analysis, filtering by probability of 1:
+  - 92% precision
+  - 82% recall
+
+Recall is way better using probabilties rathar than score for filtering, as less samples are lost, so less worse is FN.
+
+
+
 -[ ] Do the graphics
 
 NOPE, don't have ggplot
