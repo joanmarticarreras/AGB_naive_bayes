@@ -45,8 +45,10 @@ Joan Marti i Carreras, Sergio Castillo Lara
 use strict;
 use warnings;
 use Getopt::Long qw(:config no_ignore_case);
-use Data::Dumper;
-use diagnostics;
+use Pod::Usage;
+
+pod2usage( -verbose => 0,
+           -output  => \*STDOUT   ) unless @ARGV;
 
 my %options;
 GetOptions (
@@ -55,13 +57,9 @@ GetOptions (
     "directory=s",
 );
 
-if ($options{"help"}) {
-    print "sh perl tt_separator folder_data/\n";
-    exit(0);
-} elsif (not $options{"directory"}) {
-    die "You have to introduce the directory where the files are.\n";
-}
-
+pod2usage( -verbose => 1,
+           -output  => \*STDERR   ) if $options{help};
+           
 #===============================================================================
 # MAIN
 #===============================================================================
@@ -95,7 +93,7 @@ foreach my $filename (@files) {
     chomp($first_line);
     my @samples = split /\t/, $first_line;
     @samples    = @samples[0..$NUM_OF_SAMPLES - 1];
-   
+
     # Shuffling samples to obtain a random set
     my ($new_to_prev,$shuff_samples) = shuffler(\@samples);
 
@@ -236,7 +234,7 @@ sub shuffler{
     my $samples = shift;
     my @shuff_samples = @{ $samples };
     array_shuffle(\@shuff_samples);
-    
+
     # Using index relationship between samples and shuffled samples
     # to get a table of correspondence: position of the samples:order of sampling
     my $prev_order = fill_hash($samples);
