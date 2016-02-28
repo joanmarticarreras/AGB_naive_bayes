@@ -156,3 +156,33 @@ ggplot(ig3, aes(x=V1, y=V2, group=1)) +
     geom_hline(yintercept=0.125, linetype="dashed", alpha=0.7) +
     xlab("\nI.G. Threshold") + ylab("Precision\n")
 ```
+
+If we set IGthreshold = 0.5 (our maximum), and we let vary SCthreshold, the precision augments.
+
+- [x] Filter by threshold
+
+```bash
+
+mkdir kk
+
+for thres in -200 -150 -100 -50; do
+    perl kk.pl prova.tbl ${thres} > kk/prova_${thres}.tbl
+done;
+
+```
+
+- [x] Do the analysis
+
+```bash
+
+perl bin/f_calculator.pl kk/prova_* > kk/f_foreachcancer.tbl
+
+for int in 50 100 150 200; do \
+perl -e '$int = shift @ARGV; $pos = 0; $tot = 0; while(<>) {@cols = split /\t/; if ($cols[1] eq $cols[2]) {$pos++; $tot++;} else {$tot++; }} print "$int\t", $pos / $tot, "\n";' "$int" prova_-${int}.tbl >> tp.tbl; done
+
+```
+
+-[ ] Do the graphics
+
+NOPE, don't have ggplot
+
