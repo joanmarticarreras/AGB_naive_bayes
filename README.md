@@ -187,6 +187,7 @@ ggplot(ig3, aes(x=V1, y=V2, group=1)) +
     xlab("\nI.G. Threshold") + ylab("Precision\n")
 ```
 
+<<<<<<< HEAD
 
 ## Genes with IG > 0.65
 
@@ -211,3 +212,40 @@ ggplot(scores) +
     xlab("\nScore") + ylab("density\n") +
     facet_grid( V1 ~ .) + scale_fill_discrete(name="Set")
 ```
+
+If we set IGthreshold = 0.5 (our maximum), and we let vary SCthreshold, the precision augments.
+
+- [x] Filter by threshold
+
+```bash
+
+mkdir kk
+
+for thres in -200 -150 -100 -50; do
+    perl kk.pl prova.tbl ${thres} > kk/prova_${thres}.tbl
+done;
+
+```
+
+- [x] Do the analysis
+
+```bash
+
+perl bin/f_calculator.pl kk/prova_* > kk/f_foreachcancer.tbl
+
+for int in 50 100 150 200; do \
+perl -e '$int = shift @ARGV; $pos = 0; $tot = 0; while(<>) {@cols = split /\t/; if ($cols[1] eq $cols[2]) {$pos++; $tot++;} else {$tot++; }} print "$int\t", $pos / $tot, "\n";' "$int" prova_-${int}.tbl >> tp.tbl; done
+
+```
+
+Overall analysis, filtering by probability of 1:
+  - 92% precision
+  - 82% recall
+
+Recall is way better using probabilties rathar than score for filtering, as less samples are lost, so less worse is FN.
+
+
+
+-[ ] Do the graphics
+
+NOPE, don't have ggplot
