@@ -82,20 +82,38 @@ perl NotSoNaive.pl -dir set1/ -not not_valid_genes.txt -ig 0.5; done
 for int in 0.1 0.15 0.2 0.25 0.3 0.35 0.4 0.45 0.5 0.55 0.6 0.65 0.7 0.75 0.8 0.85 0.9 0.95 1; do \
 perl -e '$int = shift @ARGV; $pos = 0; $tot = 0; while(<>) {@cols = split /\t/; if ($cols[1] eq $cols[2]) {$pos++; $tot++;} else {$tot++; }} print "$int\t", $pos / $tot, "\n";' "$int" results_${int}.tbl >> tp.tbl; done
 
-for setnum in 0 1 2 3 4; do 
+for setnum in 0 1 2 3 4; do
     for int in 0.1 0.15 0.2 0.25 0.3 0.35 0.4 0.45 0.5 0.55 0.6 0.65 0.7 0.75 0.8 0.85 0.9 0.95 1; do \
         perl NotSoNaive.pl -dir set${setnum}/ -not not_valid_genes.txt -ig $int >> result_${setnum}_${int}.tbl; \
     done; \
 done
 
 
-for setnum in 0 1 2 3 4; do 
+for setnum in 0 1 2 3 4; do
     for int in 0.1 0.15 0.2 0.25 0.3 0.35 0.4 0.45 0.5 0.55 0.6 0.65 0.7 0.75 0.8 0.85 0.9 0.95 1; do \
         perl -e '$int = shift @ARGV; $setnum = shift @ARGV; $pos = 0; $tot = 0; while(<>) {@cols = split /\t/; if ($cols[1] eq $cols[2]) {$pos++; $tot++;} else {$tot++; }} print "$int\t$setnum\t", $pos / $tot, "\n";' "$int" "$setnum" result_${setnum}_${int}.tbl >> tp.tbl; \
     done; \
 done
 
 ```
+
+### IG PRECISION PLOT REVERSED
+
+> I changed <= IG
+
+```bash
+for setnum in 0 1 2 3 4; do
+    for int in 0.1 0.15 0.2 0.25 0.3 0.35 0.4 0.45 0.5 0.55 0.6 0.65 0.7 0.75 0.8 0.85 0.9 0.95 1; do \
+        perl bin/NotSoNaive.pl -dir set${setnum}/ -not not_valid_genes.txt -ig $int >> result_${setnum}_${int}_rev.tbl; \
+    done; \
+done
+
+
+
+
+```
+
+
 
 ### Information gain
 * 3rd quantile = 0.241287
@@ -105,18 +123,30 @@ done
 ### CANCER PLOTS
 
 ```bash
-perl f_calculator.pl results_from_naive.tbl > f_foreachcancer.tbl
+perl f_calculator.pl results/result_*_0.5.tbl > f_foreachcancer.tbl
 ```
 
 ```r
 library(ggplot2)
 fcancer <- read.table(file="f_foreachcancer.tbl", header=T, sep="\t")
 ggplot(fcancer) +
-    geom_bar(aes(x=MEASURE, y=VALUE, fill=MEASURE), position="dodge", stat="identity") +
+    geom_boxplot(aes(x=MEASURE, y=VALUE, fill=MEASURE)) +
     facet_wrap(~ CANCER) +
     theme_bw() +
     theme(axis.ticks.x=element_blank(),axis.text.x=element_blank()) +
-    xlab("") + ylab("")
+    xlab("") + ylab("") + ylim(0,1)
+ggsave(file="plots/f_foreach_cancer.svg")
+
+
+# ZOOM
+ggplot(fcancer) +
+    geom_boxplot(aes(x=MEASURE, y=VALUE, fill=MEASURE)) +
+    facet_wrap(~ CANCER) +
+    theme_bw() +
+    theme(axis.ticks.x=element_blank(),axis.text.x=element_blank()) +
+    xlab("") + ylab("") + ylim(0.45,1)
+
+ggsave(file="plots/f_foreach_cancer_ZOOM.svg")
 ```
 
 
@@ -155,4 +185,29 @@ ggplot(ig3, aes(x=V1, y=V2, group=1)) +
     ylim(0,1) +
     geom_hline(yintercept=0.125, linetype="dashed", alpha=0.7) +
     xlab("\nI.G. Threshold") + ylab("Precision\n")
+```
+
+
+## Genes with IG > 0.65
+
+AQP8|343     :1  
+GUCA2B|2981  :1  
+OLR1|4973    :1  
+SFTA1P|207107:1  
+
+
+# SCORE PLOT
+
+```bash
+for i in 0 1 2 3 4; do
+    gawk -v i=$i '{print i, $4}' results/result_${i}_0.5.tbl >> scores.tbl
+done
+```
+
+```r
+ggplot(scores) +
+    geom_density(aes(x=V2, fill=V1), alpha=0.7) +
+    theme_bw() +
+    xlab("\nScore") + ylab("density\n") +
+    facet_grid( V1 ~ .) + scale_fill_discrete(name="Set")
 ```
