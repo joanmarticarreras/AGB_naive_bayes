@@ -1,11 +1,57 @@
 #!/usr/bin/perl
+
+=head1 NAME
+
+f_calculator.pl
+
+=head1 VERSION
+
+v.0.1.0
+
+=head1 DESCRIPTION
+
+This program takes a list of results files from NotSoNaive.pl and computes Precision/Recall/F for each tumor type
+
+=head1 USAGE
+
+perl tt_separator.pl files
+
+=head1 OPTIONS
+
+=over 8
+
+=item B<-h>, B<-help>
+
+Shows this help.
+
+=back
+
+=head1 AUTHORS
+
+Joan Marti i Carreras, Sergio Castillo Lara
+
+=cut
+
+
 use warnings;
 use strict;
-use Data::Dumper;
+use Getopt::Long qw(:config no_ignore_case);
+use Pod::Usage;
 
+pod2usage( -verbose => 0,
+           -output  => \*STDOUT   ) unless @ARGV;
+
+my %options = ();
+
+GetOptions (
+    \%options    ,
+    "help|?"     ,
+);
+
+pod2usage( -verbose => 1,
+           -output  => \*STDERR   ) if $options{help};
 
 my @files = @ARGV;
-
 
 print "CANCER\tMEASURE\tVALUE\n";
 foreach my $file (@files) {

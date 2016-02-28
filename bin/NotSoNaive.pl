@@ -209,7 +209,7 @@ sub mutual_information {
         my $down_entropy     = compute_entropy("down", $gene, $likelihoods, $total_expr);
         my $nochange_entropy = compute_entropy("nochange", $gene, $likelihoods, $total_expr);
 
-        my $information_gain = $class_entropy - ($condi_entropy->{"up"} * $up_entropy
+        my $information_gain = $class_entropy - ( $condi_entropy->{"up"} * $up_entropy
                                                 + $condi_entropy->{"down"} * $down_entropy
                                                 + $condi_entropy->{"nochange"} * $nochange_entropy);
 
@@ -269,8 +269,8 @@ sub conditional_entropy {
             $total_people += $likelihoods->{"$cancer"}->{"$gene"}->{"$expr"};
         }
         $result{$expr} = $total_expr;
-
     }
+
     my %total_expr = ();
     $total_expr{"up"}       = $result{"up"};
     $total_expr{"down"}     = $result{"down"};
